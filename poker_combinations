@@ -1,0 +1,163 @@
+#include "race.h"
+  
+struct card {
+        int color;
+        int value;
+};
+struct card game_card[5];
+
+void card_rename(char *cards[]) {
+        int len = 0;
+        for(int i = 0; i <5; i++) {
+                len = mx_strlen(cards[i+1]);
+                int a = len - 1;
+                if (cards[i+1][a] == 'H') {
+                        game_card[i].color = 1;
+                }
+                if (cards[i+1][a] == 'C') {
+                        game_card[i].color = 2;
+                }
+                if (cards[i+1][a] == 'S') {
+                        game_card[i].color = 3;
+                }
+                if (cards[i+1][a] == 'D') {
+                        game_card[i].color = 4;
+                }
+                if(len == 2) {
+                //      printf(" %c ",cards[i+1][0]);
+                        if (cards[i+1][0] == 'A') {
+                                game_card[i].value = 14;
+                        }
+                        if (cards[i+1][0] == 'K') {
+                                game_card[i].value = 13;
+                        }
+                        if (cards[i+1][0] == 'Q') {
+                                game_card[i].value = 12;
+                        }
+                        if (cards[i+1][0] == 'J') {
+                                game_card[i].value = 11;
+                        }
+                        else {
+                                int atoi = cards[i+1][0] - 48;
+                                game_card[i].value = atoi;
+                            //  printf("atoi %d ", atoi);
+                        }
+                }
+                else {
+                        if(len == 3) {
+                                game_card[i].value = 10;
+                        }
+
+                }
+        }
+}
+void mx_usage_err(int a_count, char *a_value) {
+        if(a_count != 6) {
+                mx_printerr("usage: ");
+                mx_printerr(a_value);
+                mx_printerr(" [card1] [card2] [card3] [card4] [card5]\n");
+                exit(1);
+        }
+}
+void mx_duplicate_err(char *cards[]) {
+        for(int i = 1; i < 5; i++) {
+                for(int j = i + 1; j <= 5; j++) {
+                        if(mx_strcmp(cards[i], cards[j]) == 0) {
+                                mx_printerr("Duplicate cards: ");
+                                mx_printerr(cards[i]);
+                                mx_printerr("\n");
+                                exit(1);
+                        }
+                }
+        }
+}
+void mx_invalid_card(char *cards[]) {
+        int symb;
+        for(int i = 1; i <= 5; i++) {
+                symb = mx_strlen(cards[i]);
+                if (symb < 2 || symb > 3) {
+                        mx_printerr("Invalid card: ");
+                        mx_printerr(cards[i]);
+                        mx_printerr("\n");
+                        exit(1);
+                }
+        }
+}
+int mx_suit_err(char *invalid_suit, char *cards[]) {
+        int count = 0;
+        for(int i = 1; i <= 5; i++) {
+                int a = mx_strlen(cards[i]) - 1;
+                if(cards[i][a] == 'H' || cards[i][a] == 'C' || cards[i][a] == 'S' || cards[i][a] == 'D') {
+                        count++;
+                }
+                else {
+                        invalid_suit[0] = cards[i][a];
+                        return 1;
+                }
+        }
+        return 0;
+}
+        for(int i = 1; i <= 5; i++) {
+                int a = mx_strlen(cards[i]);
+                if(a == 2) {
+                        if((cards[i][0] > '1' && cards[i][0] <= '9') || cards[i][0] == 'J' || cards[i][0] == 'Q' || cards[i][0] == 'K' || cards[i][0] == 'A') {
+                                count++;
+                        }
+                        else {
+                                invalid_rank[0] = cards[i][0];
+                                return 1;
+                        }
+                }
+                else {
+                        if(cards[i][0] == '1' && cards[i][1] == '0') {
+                                count++;
+                        }
+                        else {
+                                invalid_rank[0] = cards[i][0];
+                                invalid_rank[1] = cards[i][1];
+                                return 1;
+                        }
+                }
+        }
+        return 0;
+}
+void mx_rank_suit_err(char *cards[]) {
+        char suit_buff[2] = {'\0','\0'};
+        char rank_buff[3] = {'\0','\0','\0'};
+        int suit = mx_suit_err(suit_buff, cards);
+        int rank = mx_rank_err(rank_buff, cards);
+
+        if(suit == 1 && rank == 1) {
+                mx_printerr("Invalid card: ");
+                mx_printerr(rank_buff);
+                mx_printerr(suit_buff);
+                mx_printerr("\n");
+                exit(1);
+        }
+        else {
+                if(rank == 1 && suit == 0) {
+                        mx_printerr("Invalid card rank: ");
+                        mx_printerr(rank_buff);
+                        mx_printerr("\n");
+                        exit(1);
+                }
+                else {
+                        if(suit == 1 && rank == 0) {
+                                mx_printerr("Invalid card suit: ");
+                                mx_printerr(suit_buff);
+                                mx_printerr("\n");
+                                exit(1);
+                        }
+                }
+        }
+
+}
+
+int main(int argc, char *argv[]) {
+        mx_usage_err(argc, argv[0]);
+        mx_duplicate_err(argv);
+        mx_invalid_card(argv);
+        mx_rank_suit_err(argv);
+        card_rename(argv);
+        return 0;
+}
